@@ -1,4 +1,4 @@
-import  User from "../models/User.js";
+import User from "../models/User.js";
 import bcrypt from "bcrypt";
 import { createAccessToken } from "../utils/token.js";
 
@@ -57,7 +57,11 @@ export const login = async (req, res) => {
     if (!isMatch)
       return res.status(400).json({ status: false, msg: "Password incorrect" });
 
-    const token = createAccessToken({ id: user._id });
+    const token = createAccessToken({
+      id: user._id,
+      name: user.name,
+      email: user.email,
+    });
 
     delete user.password;
     res
@@ -69,4 +73,9 @@ export const login = async (req, res) => {
       .status(500)
       .json({ status: false, msg: "Internal Server Error" });
   }
+};
+
+export const getUser = async (req, res) => {
+  try {
+  } catch (err) {}
 };

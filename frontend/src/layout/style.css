@@ -1,0 +1,8 @@
+/* styles.css */
+.hover-underline {
+  cursor: pointer;
+}
+
+.hover-underline:hover {
+  text-decoration: underline;
+}
