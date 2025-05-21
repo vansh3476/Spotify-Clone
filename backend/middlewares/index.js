@@ -1,14 +1,16 @@
-const jwt = require("jsonwebtoken");
-const User = require("../models/User");
-const { ACCESS_TOKEN_SECRET } = process.env;
+import jwt from "jsonwebtoken";
+import User from "../models/User.js";
+import dotenv from "dotenv";
 
-exports.verifyAccessToken = async (req, res, next) => {
+dotenv.config();
+
+export const verifyAccessToken = async (req, res, next) => {
   const token = req.header("Authorization");
   if (!token)
     return res.status(400).json({ status: false, msg: "Token not found" });
   let user;
   try {
-    user = jwt.verify(token, ACCESS_TOKEN_SECRET);
+    user = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
   } catch (err) {
     return res.status(401).json({ status: false, msg: "Invalid token" });
   }

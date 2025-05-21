@@ -1,8 +1,12 @@
-const express = require("express");
+import express from "express";
+import mongoose from "mongoose";
+import dotenv from "dotenv";
+import authRoutes from "./routes/authRoutes.js";
+import paylistRoutes from "./routes/paylistRoutes.js";
+import spotifyRoutes from "./routes/spotifyRoutes.js";
+
+dotenv.config();
 const app = express();
-const mongoose = require("mongoose");
-require("dotenv").config();
-const authRoutes = require("./routes/authRoutes");
 
 try {
   const mongoUrl = process.env.MONGODB_URL;
@@ -14,6 +18,8 @@ try {
 app.use(express.json());
 
 app.use("/", authRoutes);
+app.use("/paylist", paylistRoutes);
+app.use("/spotify", spotifyRoutes);
 
 app.listen(5000, () => {
   console.log(`Backend is running on port 5000`);

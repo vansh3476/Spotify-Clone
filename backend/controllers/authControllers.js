@@ -1,8 +1,8 @@
-const User = require("../models/User");
-const bcrypt = require("bcrypt");
-const { createAccessToken } = require("../utils/token");
+import  User from "../models/User.js";
+import bcrypt from "bcrypt";
+import { createAccessToken } from "../utils/token.js";
 
-exports.signup = async (req, res) => {
+export const signup = async (req, res) => {
   try {
     const { name, email, password } = req.body;
     if (!name || !email || !password) {
@@ -38,7 +38,7 @@ exports.signup = async (req, res) => {
   }
 };
 
-exports.login = async (req, res) => {
+export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
     if (!email || !password) {
