@@ -113,7 +113,7 @@ const Register = () => {
         onClick={handleRegister}
         style={{ marginTop: 20 }}
       >
-        {loading ? <CircularProgress size={24} /> : Register}
+        {loading ? <CircularProgress size={24} /> : "Register"}
       </Button>
       <Box
         sx={{
