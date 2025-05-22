@@ -11,7 +11,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: "https://spotify-clone-l0b7.onrender.com", // your frontend origin
+    origin: "https://spotifyclone-nine-psi.vercel.app",
     credentials: true,
   })
 );
