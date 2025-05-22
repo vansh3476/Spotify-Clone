@@ -11,7 +11,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: "http://localhost:5173", // your frontend origin
+    origin: "https://spotify-clone-l0b7.onrender.com", // your frontend origin
     credentials: true,
   })
 );
