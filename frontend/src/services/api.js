@@ -2,7 +2,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://localhost:5000", // change this if deployed
+  baseURL: "https://spotify-clone-l0b7.onrender.com", // change this if deployed
 });
 
 export default api;
