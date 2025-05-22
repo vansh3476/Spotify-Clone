@@ -4,15 +4,17 @@ import dotenv from "dotenv";
 import authRoutes from "./routes/authRoutes.js";
 import paylistRoutes from "./routes/paylistRoutes.js";
 import spotifyRoutes from "./routes/spotifyRoutes.js";
-import cors from 'cors'
+import cors from "cors";
 
 dotenv.config();
 const app = express();
 
-app.use(cors({
-  origin: 'http://localhost:5173', // your frontend origin
-  credentials: true
-}));
+app.use(
+  cors({
+    origin: "http://localhost:5173", // your frontend origin
+    credentials: true,
+  })
+);
 
 try {
   const mongoUrl = process.env.MONGODB_URL;
@@ -27,6 +29,6 @@ app.use("/", authRoutes);
 app.use("/paylist", paylistRoutes);
 app.use("/spotify", spotifyRoutes);
 
-app.listen(5000, () => {
+app.listen(process.env.PORT || 5000, () => {
   console.log(`Backend is running on port 5000`);
 });
