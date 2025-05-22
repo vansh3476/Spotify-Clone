@@ -6,20 +6,31 @@ import Button from "@mui/material/Button";
 import api from "../services/api";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import { useAuthContext } from "../context/authContext";
+import { toast } from "react-toastify";
+import { CircularProgress } from "@mui/material";
 
 const Login = () => {
   const { login, user } = useAuthContext();
   const navigate = useNavigate();
   const [form, setForm] = useState({ email: "", password: "" });
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
   const handleLogin = async () => {
-    const res = await api.post("/login", form);
-    login(res.data.token);
-    navigate("/");
+    try {
+      setLoading(true);
+      const res = await api.post("/login", form);
+      toast.success(res.data.msg);
+      login(res.data.token);
+      navigate("/");
+    } catch (err) {
+      toast.error(err?.response?.data?.msg);
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (user) {
@@ -55,7 +66,7 @@ const Login = () => {
           onClick={handleLogin}
           style={{ marginTop: 20 }}
         >
-          Login
+          {loading ? <CircularProgress size={24} /> : "Login"}
         </Button>
         <Box
           sx={{

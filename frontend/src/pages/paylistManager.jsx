@@ -11,10 +11,17 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
+  Typography,
 } from "@mui/material";
 import api from "../services/api";
 import SongSearch from "./SongSearch";
 import { useAuthContext } from "../context/authContext";
+import "./style.css";
+import { PaylistModal } from "../components/paylistModal.jsx";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
+import SongAddToPlaylistModal from "../components/songAddToPlaylistModal.jsx";
+import { toast } from "react-toastify";
 
 const PlaylistManager = () => {
   const { token } = useAuthContext();
@@ -22,10 +29,12 @@ const PlaylistManager = () => {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [editId, setEditId] = useState(null);
+  const [open, setOpen] = React.useState(false);
   const [selectedPlaylist, setSelectedPlaylist] = useState(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedSong, setSelectedSong] = useState(null);
 
   const fetchPlaylists = async () => {
-    console.log("token", token);
     const res = await api.get("/paylist", {
       headers: { Authorization: `${token}` },
     });
@@ -36,95 +45,196 @@ const PlaylistManager = () => {
     fetchPlaylists();
   }, []);
 
+  const handleClose = () => {
+    setOpen(false);
+    setName("");
+    setDescription("");
+  };
+
   const handleSubmit = async () => {
     if (editId) {
       await api.put(
-        `/playlists/${editId}`,
+        `/paylist/${editId}`,
         { name, description },
         {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: { Authorization: `${token}` },
         }
       );
+      toast.success("Paylist Updated");
     } else {
       await api.post(
-        "/playlists",
+        "/paylist",
         { name, description },
         {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: { Authorization: `${token}` },
         }
       );
+      toast.success("Paylist Created");
     }
     setName("");
     setDescription("");
     setEditId(null);
+    setOpen(false);
     fetchPlaylists();
   };
 
+  const handleOpenModal = (song) => {
+    setSelectedSong(song);
+    setModalOpen(true);
+  };
+
   const handleEdit = (p) => {
+    setOpen(true);
     setEditId(p._id);
     setName(p.name);
     setDescription(p.description || "");
   };
 
   const handleDelete = async (id) => {
-    await api.delete(`/playlists/${id}`, {
+    await api.delete(`/paylist/${id}`, {
       headers: { Authorization: `${token}` },
     });
     fetchPlaylists();
+    setEditId(null);
+    setName("");
+    setDescription("");
   };
 
   return (
-    <Box>
-      <h2>Your Playlists</h2>
-      <Box display="flex" gap="1rem" mb={2}>
-        <TextField
-          label="Name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
-        <TextField
-          label="Description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-        />
-        <Button variant="contained" onClick={handleSubmit}>
-          {editId ? "Update" : "Create"}
-        </Button>
-      </Box>
-
-      <List>
-        {playlists.map((playlist) => (
-          <ListItem
-            key={playlist._id}
-            secondaryAction={
-              <>
-                <div onClick={() => handleEdit(playlist)}>Edit</div>
-                <div onClick={() => handleDelete(playlist._id)}>Delete</div>
-              </>
-            }
-            button
-            onClick={() => setSelectedPlaylist(playlist)}
-          >
-            <ListItemText
-              primary={playlist.name}
-              secondary={playlist.description}
-            />
-          </ListItem>
-        ))}
-      </List>
-
-      <Dialog
-        open={!!selectedPlaylist}
-        onClose={() => setSelectedPlaylist(null)}
-        maxWidth="md"
-        fullWidth
+    <>
+      <Box
+        sx={{ display: "flex", alignItems: "flex-start", columnGap: "30px" }}
       >
-        <DialogTitle>Manage Songs in: {selectedPlaylist?.name}</DialogTitle>
-        <DialogContent>
-          {selectedPlaylist && <SongSearch playlistId={selectedPlaylist._id} />}
-        </DialogContent>
-      </Dialog>
-    </Box>
+        <Box sx={{ width: "40%" }}>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              columnGap: "20px",
+            }}
+          >
+            <h2 className="paylistTitle">Your Playlists</h2>
+            <Button
+              variant="contained"
+              onClick={() => {
+                setOpen(true);
+              }}
+            >
+              <span>+ New </span>
+            </Button>
+          </Box>
+          <div className="paylistWrapper">
+            {!playlists?.length && (
+              <span
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  color: "black",
+                  margin: "0 auto",
+                }}
+              >
+                No Paylist Found
+              </span>
+            )}
+            {playlists.map((playlist) => (
+              <div
+                className="listitem"
+                key={playlist._id}
+                onClick={() => setSelectedPlaylist(playlist)}
+              >
+                <div style={{ display: "grid" }}>
+                  <span
+                    style={{
+                      color: "black",
+                      fontSize: "20px",
+                      fontWeight: "500",
+                    }}
+                  >
+                    {playlist.name}
+                  </span>
+                  <span
+                    style={{
+                      color: "black",
+                      fontWeight: "400",
+                      fontSize: "0.875rem",
+                      lineHeight: "1.43",
+                      letterSpacing: "0.01071em",
+                    }}
+                  >
+                    {playlist.description}
+                  </span>
+                  <span
+                    style={{
+                      color: "black",
+                      fontWeight: "500",
+                      fontSize: "0.875rem",
+                      lineHeight: "1.43",
+                      letterSpacing: "0.01071em",
+                      marginTop: "10px",
+                    }}
+                  >
+                    Songs: {!playlist?.songs?.length && "No Songs Added"}
+                    <br />{" "}
+                    <ui>
+                      {playlist.songs.map((item) => (
+                        <li
+                          style={{
+                            fontWeight: "400",
+                          }}
+                        >
+                          {item.title}
+                        </li>
+                      ))}
+                    </ui>
+                  </span>
+                </div>
+                <div className="iconWrapper">
+                  <EditIcon
+                    onClick={() => handleEdit(playlist)}
+                    color="primary"
+                    sx={{ cursor: "pointer" }}
+                  >
+                    Edit
+                  </EditIcon>
+                  <DeleteIcon
+                    onClick={() => handleDelete(playlist._id)}
+                    color="primary"
+                    sx={{ cursor: "pointer" }}
+                  >
+                    Delete
+                  </DeleteIcon>
+                </div>
+              </div>
+            ))}
+          </div>
+        </Box>
+        <Box sx={{ width: "60%", marginTop: "10px" }}>
+          <SongSearch
+            handleAdd={(song) => handleOpenModal(song)}
+            fetchPlaylists={fetchPlaylists}
+          />
+        </Box>
+      </Box>
+      <PaylistModal
+        open={open}
+        name={name}
+        description={description}
+        setName={setName}
+        setDescription={setDescription}
+        editId={editId}
+        handleSubmit={handleSubmit}
+        handleClose={handleClose}
+      />
+      {selectedSong && (
+        <SongAddToPlaylistModal
+          open={modalOpen}
+          onClose={() => setModalOpen(false)}
+          song={selectedSong}
+          playlists={playlists}
+          fetchPlaylists={fetchPlaylists}
+        />
+      )}
+    </>
   );
 };
 

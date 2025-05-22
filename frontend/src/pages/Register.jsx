@@ -6,6 +6,7 @@ import Button from "@mui/material/Button";
 import api from "../services/api";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import {
+  CircularProgress,
   FormControl,
   IconButton,
   InputAdornment,
@@ -15,12 +16,14 @@ import {
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import { useAuthContext } from "../context/authContext";
+import { toast } from "react-toastify";
 
 const Register = () => {
   const { user } = useAuthContext();
   const navigate = useNavigate();
   const [form, setForm] = useState({ name: "", email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
 
@@ -37,8 +40,20 @@ const Register = () => {
   };
 
   const handleRegister = async () => {
-    await api.post("/signup", form);
-    navigate("/login");
+    setLoading(true);
+    try {
+      await api.post("/signup", form);
+      toast.success("Registration successful! Redirecting to login...");
+      navigate("/login");
+    } catch (error) {
+      const msg =
+        error?.response?.data?.message ||
+        error?.response?.data?.error ||
+        "Registration failed";
+      toast.error(msg);
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (user) {
@@ -73,6 +88,8 @@ const Register = () => {
         <OutlinedInput
           id="outlined-adornment-password"
           type={showPassword ? "text" : "password"}
+          onChange={handleChange}
+          name="password"
           endAdornment={
             <InputAdornment position="end">
               <IconButton
@@ -96,7 +113,7 @@ const Register = () => {
         onClick={handleRegister}
         style={{ marginTop: 20 }}
       >
-        Register
+        {loading ? <CircularProgress size={24} /> : Register}
       </Button>
       <Box
         sx={{
